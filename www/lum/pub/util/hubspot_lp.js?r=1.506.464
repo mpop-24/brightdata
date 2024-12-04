@@ -1,0 +1,1462 @@
+;(function () {// LICENSE_CODE ZON
+  'use strict'; /*jslint node:true, browser:true, esversion: 11*/
+  /* global hbspt, brd_forms_regions, Calendly, elementorProFrontend,
+  MicroModal, brd_popups_html */function _wrapRegExp() {_wrapRegExp = function _wrapRegExp(e, r) {return new BabelRegExp(e, void 0, r);};var e = RegExp.prototype,r = new WeakMap();function BabelRegExp(e, t, p) {var o = RegExp(e, t);return r.set(o, p || r.get(e)), _setPrototypeOf(o, BabelRegExp.prototype);}function buildGroups(e, t) {var p = r.get(t);return Object.keys(p).reduce(function (r, t) {var o = p[t];if ("number" == typeof o) r[t] = e[o];else {for (var i = 0; void 0 === e[o[i]] && i + 1 < o.length;) i++;r[t] = e[o[i]];}return r;}, Object.create(null));}return _inherits(BabelRegExp, RegExp), BabelRegExp.prototype.exec = function (r) {var t = e.exec.call(this, r);if (t) {t.groups = buildGroups(t, this);var p = t.indices;p && (p.groups = buildGroups(p, this));}return t;}, BabelRegExp.prototype[Symbol.replace] = function (t, p) {if ("string" == typeof p) {var o = r.get(this);return e[Symbol.replace].call(this, t, p.replace(/\$<([^>]+)>/g, function (e, r) {var t = o[r];return "$" + (Array.isArray(t) ? t.join("$") : t);}));}if ("function" == typeof p) {var i = this;return e[Symbol.replace].call(this, t, function () {var e = arguments;return "object" != _typeof(e[e.length - 1]) && (e = [].slice.call(e)).push(buildGroups(e, i)), p.apply(this, e);});}return e[Symbol.replace].call(this, t, p);}, _wrapRegExp.apply(this, arguments);}function _inherits(t, e) {if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function");t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e);}function _setPrototypeOf(t, e) {return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) {return t.__proto__ = e, t;}, _setPrototypeOf(t, e);}function _typeof(o) {"@babel/helpers - typeof";return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {return typeof o;} : function (o) {return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;}, _typeof(o);}
+  (function () {
+    var define;
+    var is_node = (typeof module === "undefined" ? "undefined" : _typeof(module)) == 'object' && module.exports;
+    if (is_node)
+    define = require('../../../../util/require_node.js').define(module, '..');else
+
+    define = self.define;
+
+    // no deps script to be directly required with GTM (e.g. on lp.brightdata.com)
+
+    var E = { t: {} };
+    E.ATTR_BASE = is_cn_host() ? 'https://www.bright.cn' : is_brdins_host() ?
+    'https://brightinsights.com' : 'https://brightdata.com';
+    var rnd = Math.random();
+
+    E.hostname_parts = function (url) {
+      var hostname = /^((\w+:)?\/\/)?([^/]+@)?([^/:]+)/.exec(url);
+      hostname = (hostname && hostname[4] || '').split('.');
+      return [hostname[hostname.length - 3], hostname[hostname.length - 2]].
+      filter(Boolean);
+    };
+
+    E.check_domains = function check_domains(url, domains) {
+      if (!url)
+      return false;
+      var hostname = E.hostname_parts(url);
+      for (var j in domains)
+      {
+        if (domains[j] == hostname[0] || domains[j] == hostname[1])
+        return true;
+      }
+      return false;
+    };
+
+    E.is_service_url = function (url) {
+      return url.indexOf('https://accounts.google.') == 0 ||
+      url.indexOf('https://accounts.youtube.') == 0 ||
+      url.indexOf('https://mail.google.com') == 0 ||
+      url.indexOf('https://calendly.com') == 0 ||
+      url.indexOf('android-app://com.google.android.gm') == 0;
+    };
+
+    E.is_ai_url = function (url) {
+      var domains = [
+      /chat\.openai\.com/,
+      /copilot\.microsoft\.com/,
+      /perplexity\.ai/,
+      /chatgpt\.com/,
+      /claude\.ai/,
+      /gemini\.google\.com/];
+
+      return domains.some(function (d) {return d.test(url);});
+    };
+
+    E.is_organic = function is_organic(referrer, domains) {
+      domains = domains || ['google', 'yahoo', 'bing', 'duckduckgo', 'yandex',
+      'baidu', 'coccoc', 'naver', 'swurl', 'brave', 'metager'];
+      return (E.check_domains(referrer, domains) || E.is_ai_url(referrer)) &&
+      !E.is_service_url(referrer);
+    };
+
+    function is_dev() {
+      return !!document.location.port;
+    }
+
+    function is_cn_host(hostname) {
+      hostname = hostname || typeof location !== 'undefined' && location.hostname || '';
+      return hostname.indexOf('bright.cn') !== -1;
+    }
+
+    function is_brdins_host(hostname) {
+      hostname = hostname || typeof location !== 'undefined' && location.hostname || '';
+      return hostname.indexOf('brightinsights.com') !== -1;
+    }
+
+    function get_qs() {
+      var search = (document.location.search || '').substring(1).split('&');
+      var res = {};
+      function decode(val) {
+        if (!val)
+        return '';
+        val = val.replace(/\+/g, ' ');
+        try {
+          return decodeURIComponent(val);
+        } catch (e) {
+          return val;
+        }
+      }
+      for (var i = 0; i < search.length; i++)
+      {
+        if (!search[i])
+        continue;
+        var kv = search[i].split('=');
+        res[decode(kv[0])] = decode(kv[1]);
+      }
+      return res;
+    }
+    E.t.get_qs = get_qs;
+
+    function get_utm(qs) {
+      qs = qs || get_qs();
+      var res;
+      var keys = { utm_campaign: 1, utm_content: 1, utm_medium: 1, utm_source: 1,
+        utm_term: 1 };
+      for (var i in keys)
+      {
+        if (i in qs)
+        {
+          res = res || {};
+          res[i] = qs[i];
+        }
+      }
+      return res;
+    }
+    E.t.get_utm = get_utm;
+
+    function get_origin() {
+      var location = document.location;
+      if (location.origin)
+      return location.origin;
+      // IE9 does not support location.origin
+      // IE9: always includes port in host even on known protocol, use hostname
+      var default_ports = { 'http:': 80, 'https:': 443 };
+      var port = location.port;
+      if (default_ports[location.protocol] == port) // omit default protocol port
+        port = null;
+      return location.protocol + '//' + location.hostname + (port ? ':' + port : '');
+    }
+
+    function get_referrer(referrer) {
+      referrer = referrer || document.referrer;
+      if (referrer && !(referrer.indexOf(get_origin()) == 0))
+      return referrer;
+    }
+
+    function is_selenium() {
+      if (typeof navigator === 'undefined')
+      return false;
+      return navigator.userAgent.includes('zselenium');
+    }
+
+    function req(method, url, data, opt) {
+      opt = opt || {};
+      var xhr = new XMLHttpRequest();
+      var start_ts;
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState != XMLHttpRequest.DONE)
+        return;
+        if (xhr.status == 200 && opt.success)
+        opt.success(xhr.response);
+        if (xhr.status != 200)
+        {
+          // throw to /errjs handled, timeout not to skip 'complete'
+          setTimeout(function () {
+            throw new Error('hubspot_lp.js request failed ' +
+            url + ': ' + xhr.status + ' (' + (Date.now() - start_ts) + 'ms)');
+          }, 0);
+          if (opt.retry)
+          {
+            delete opt.init;
+            opt.retry--;
+            url = url + (/\?/.test(url) ? '&' : '?') + 'retry';
+            req(method, url, data, opt);
+            return;
+          }
+          if (opt.error)
+          opt.error(xhr);
+        }
+        if (opt.complete)
+        opt.complete();
+      };
+      function start() {
+        if (typeof url == 'function')
+        url = url();
+        xhr.open(method, url);
+        xhr.withCredentials = true;
+        xhr.responseType = 'json';
+        if (opt.timeout)
+        xhr.timeout = opt.timeout;
+        start_ts = Date.now();
+        if (method == 'POST')
+        {
+          xhr.setRequestHeader('Content-type', 'application/json');
+          xhr.send(JSON.stringify(data));
+        } else
+
+        xhr.send();
+      }
+      if (!opt.init)
+      start();else
+
+      return start;
+    }
+
+    // not yet used
+    // function req_get(url, opt){
+    //     return req('GET', url, null, opt);
+    // }
+
+    function req_post(url, data, opt) {
+      return req('POST', url, data, opt);
+    }
+
+    function req_hserr(event, data) {
+      if (is_selenium())
+      return;
+      data = data || {};
+      var p = ['event=' + event];
+      if (data)
+      {
+        for (var _i in data)
+        {
+          data[_i] = (typeof window === "undefined" ? "undefined" : _typeof(window)) == 'object' ? JSON.stringify(data[_i]) : data[_i];
+          p.push(_i + '=' + encodeURIComponent(data[_i]));
+        }
+      }
+      req('GET', '/web_api/hserr?' + p.join('&'));
+    }
+
+    var queue = [];
+    function queue_req(method, url, data, opt) {
+      opt = opt || {};
+      opt.init = true;
+      extend_callback(opt, 'complete', function () {
+        queue.shift();
+        if (queue[0])
+        queue[0]();
+      });
+      var send_fn = req(method, url, data, opt);
+      queue.push(send_fn);
+      if (queue.length == 1)
+      queue[0]();
+    }
+
+    function queue_req_get(url, opt) {
+      return queue_req('GET', url, null, opt);
+    }
+
+    function req_debug(query) {
+      if (is_dev())
+      return;
+      var script = document.createElement('script');
+      script.src = E.ATTR_BASE + '/dummy.js?' + query + '&rnd=' + rnd;
+      document.body.appendChild(script);
+    }
+
+    function set_mkt_event(event) {
+      try {
+        localStorage.removeItem('brd_event');
+        localStorage.removeItem('brd_event2');
+        localStorage.setItem('brd_event3', JSON.stringify(event));
+      } catch (e) {}
+    }
+
+    function get_mkt_event() {
+      try {
+        localStorage.removeItem('brd_event');
+        localStorage.removeItem('brd_event2');
+        var res = localStorage.getItem('brd_event3');
+        return JSON.parse(res);
+      } catch (e) {}
+    }
+
+    function set_falcon_id(id) {
+      if (!id)
+      return;
+      document.cookie = 'brd_falcon_id=' + id + ';path=/;max-age=' + 10 * 365 * 24 * 60 * 60;
+      document.cookie = 'mkt_sid3=' + id + ';path=/;max-age=' + 10 * 365 * 24 * 60 * 60;
+      try {localStorage.setItem('brd_falcon_id', id);} catch (e) {}
+    }
+
+    function get_falcon_id() {
+      var res;
+      try {res = localStorage.getItem('brd_falcon_id');} catch (e) {}
+      if (res)
+      return res;
+      res = document.cookie.split(';');
+      var i;
+      for (i in res)
+      {
+        var _match = /^\s*brd_falcon_id=(.*)$/.exec(res[i]);
+        if (_match)
+        return _match[1];
+      }
+      for (i in res)
+      {
+        var match = /^\s*mkt_sid3=(.*)$/.exec(res[i]);
+        if (match)
+        return match[1];
+      }
+      return '';
+    }
+    E.get_falcon_id = get_falcon_id;
+
+    // not yet used
+    // function queue_req_post(url, data, opt){
+    //     return queue_req('POST', url, data, opt);
+    // }
+
+    function get_signup_data(ext) {
+      var email = ext.email_raw;
+      var res = Object.assign({ email: email, username: email, signup_email: email },
+      ext);
+      var fields = { 'signup_page': 'signup_page',
+        'signup_referrer': 'signup_referrer',
+        'first_page_visited': 'first_page_visited', 'brd_event': 'brd_event3' };
+      for (var f in fields)
+      {
+        var val = fields[f];
+        try {res[f] = localStorage.getItem(val);} catch (e) {}
+      }
+      res.falcon_id = get_falcon_id();
+      res.save_two_step = true;
+      try {
+        var url_params = new URLSearchParams(window.location.search);
+        res.kyc = url_params.get('kyc');
+      } catch (e) {}
+      var lang = get_current_lang();
+      var lang_map = { 'zh-hans': 'CN', ja: 'JP', 'pt-br': 'PT' };
+      res.lang = lang_map[lang] || lang.toUpperCase();
+      return res;
+    }
+
+    E.track_pageview = function () {
+      add_baidu_pixel();
+      if (is_dev())
+      return;
+      var event = E.get_current_event();
+      if (!event)
+      return;
+      var url = E.ATTR_BASE + '/users/falcon' +
+      '?prev=' + encodeURIComponent(get_referrer() || '') +
+      '&id=' + get_falcon_id() +
+      '&page=' + encodeURIComponent(location.href) +
+      '&rnd=' + rnd +
+      '&lse=nolp';
+      queue_req_get(url, { success: function success(res) {
+          set_falcon_id(res && res.brd_falcon_id);
+        } });
+      set_mkt_event(event);
+    };
+
+    E.utm_names = {
+      utm_source: 'last_utm_source',
+      utm_medium: 'last_utm_medium',
+      utm_campaign: 'last_utm_campaign',
+      utm_term: 'last_utm_term',
+      utm_content: 'last_utm_content',
+      utm_matchtype: 'utm_matchtype'
+    };
+
+    E.get_recent_utm = function get_recent_utm(events, opt) {
+      opt = opt || {};
+      events = events || [];
+      var ts_field = opt.ts_field || 'last';
+      events = events.sort(function (a, b) {return b[ts_field] - a[ts_field];});
+      var res = { referrer: '', utm_source: '', utm_medium: '',
+        utm_campaign: '', utm_term: '', utm_content: '' };
+      var ref_ts = 0,utm_ts = 0;
+      var d90 = Date.now() - 90 * 24 * 3600 * 1000;
+      for (var i in events)
+      {
+        var ev = events[i];
+        if (opt.last_90d && ev[ts_field] < d90)
+        continue;
+        if (ev.referrer && !res.referrer)
+        {
+          ref_ts = ev[ts_field];
+          res.referrer = ev.referrer;
+        }
+        if (ev.qs && ev.qs.utm_source && !res.utm_source)
+        {
+          utm_ts = ev[ts_field];
+          for (var name in E.utm_names)
+          {
+            res[name] = ev.qs[name] || '';
+            if (Array.isArray(res[name]))
+            res[name] = res[name][0];
+          }
+          res.event = ev.event;
+        }
+      }
+      res.last_event_order = '';
+      if (ref_ts > utm_ts)
+      res.last_event_order = 'referrer';else
+      if (utm_ts > ref_ts)
+      res.last_event_order = 'utm';else
+      if (utm_ts > 0) // utm_ts==ref_ts
+        res.last_event_order = 'all';
+      return res;
+    };
+
+    E.format_recent_utm = function (recent_utm) {
+      return {
+        last_utm_source: recent_utm.utm_source,
+        last_utm_medium: recent_utm.utm_medium,
+        last_utm_campaign: recent_utm.utm_campaign,
+        last_utm_term: recent_utm.utm_term,
+        last_utm_content: recent_utm.utm_content,
+        utm_matchtype: recent_utm.utm_matchtype,
+        referring_domain: recent_utm.referrer,
+        last_event_order: recent_utm.last_event_order
+      };
+    };
+
+    function check_local_storage() {
+      try {
+        localStorage.setItem('debug', 'debug');
+        var val = localStorage.getItem('debug');
+        localStorage.removeItem('debug');
+        return val == 'debug';
+      } catch (e) {
+        return '' + e;
+      }
+    }
+
+    E.debug_info = function debug_info(opt) {
+      return {
+        // increment on each format change
+        version: 3,
+        rnd: rnd,
+        local_storage: check_local_storage(),
+        attribution_fallback: opt.attribution_fallback,
+        old_utm_source: opt.old_utm_source,
+        falcon_id: get_falcon_id()
+      };
+    };
+
+    E.local = ['luminati', 'brightdata', 'luminati-china', 'lumidaili',
+    'bright', 'ru-brightdata', 'brightinsights'];
+
+    E.get_current_event = function (qs, referrer, page, pathname) {
+      if (typeof document !== 'undefined')
+      {
+        if (page === undefined)
+        page = document.location.href;
+        if (pathname === undefined)
+        pathname = document.location.pathname;
+        if (qs === undefined)
+        qs = get_qs();
+        if (referrer === undefined)
+        referrer = get_referrer();
+      }
+      var event;
+      var is_local = E.check_domains(referrer, E.local);
+      var affiliate = qs.affiliate || qs.aff || qs.bizdev;
+      var ps_partner_key = qs.gspk || qs.ps_partner_key;
+      if (ps_partner_key)
+      affiliate = 'ps_' + ps_partner_key;
+      if (affiliate)
+      event = { event: 'affiliate ' + affiliate };
+      var campaign = qs.campaign || qs.cam;
+      if (!event && campaign)
+      event = { event: 'campaign ' + campaign };
+      var promocode = qs.promo;
+      if (!event && promocode)
+      event = { event: 'promocode ' + promocode };
+      if (!event && !is_local && get_utm(qs))
+      event = { event: 'utm' };
+      if (!event)
+      {
+        if (E.is_organic(referrer))
+        event = { event: 'organic' };
+        if (E.check_domains(referrer, ['youtube']) &&
+        !E.is_service_url(referrer))
+        {
+          event = { event: 'campaign yt_referrer' };
+        }
+        if (E.check_domains(referrer, ['github']))
+        event = { event: 'campaign github' };
+        if (E.check_domains(referrer, ['facebook']))
+        event = { event: 'campaign fb_referrer' };
+      }
+      if (!is_local && !event)
+      {
+        if (referrer && !E.is_service_url(referrer))
+        event = { event: 'referrer' };
+      }
+      if (!event && !referrer && !get_utm(qs) && !is_selenium() &&
+      pathname == '/')
+      {
+        event = { event: 'direct' };
+      }
+      if (event)
+      {
+        event.last = event.first = Date.now();
+        event.count = 1;
+        event.referrer = referrer;
+        event.qs = qs;
+        event.page = page;
+        event.pathname = pathname;
+      }
+      return event;
+    };
+
+    var mob_reg = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+    E.fill_form_utm = function fill_form_utm(brd_recent_utm) {
+      var recent_utm = brd_recent_utm || {},attribution_fallback;
+      var current_event = E.get_current_event(),events;
+      var country = recent_utm.country || false;
+      if (!recent_utm.last_event_order)
+      {
+        current_event = get_mkt_event();
+        events = current_event ? [current_event] : [];
+        recent_utm = E.get_recent_utm(events, { last_90d: true });
+        if (recent_utm.last_event_order)
+        attribution_fallback = 'brd_event';
+      }
+      var old_recent_utm = E.get_recent_utm(current_event ? [current_event] : [],
+      { last_90d: true });
+      if (!recent_utm.last_event_order)
+      {
+        recent_utm = old_recent_utm;
+        if (recent_utm.last_event_order)
+        attribution_fallback = 'local_storage';
+      }
+      if (!recent_utm.last_event_order)
+      {
+        current_event = E.get_current_event();
+        events = current_event ? [current_event] : [];
+        recent_utm = E.get_recent_utm(events, { last_90d: true });
+        if (recent_utm.last_event_order)
+        attribution_fallback = 'url';
+      }
+      var forms = document.getElementsByTagName('form');
+      for (var i = 0; i < forms.length; i++)
+      {
+        var form = forms[i];
+        if (form.elements.debug)
+        {
+          form.elements.debug.value =
+          JSON.stringify(E.debug_info({
+            attribution_fallback: attribution_fallback,
+            old_utm_source: old_recent_utm.utm_source
+          }));
+        }
+        if (form.elements.signup_page)
+        form.elements.signup_page.value = document.location.href;
+        if (form.elements.registered_via_mobile)
+        {
+          var is_mobile = false;
+          try {is_mobile = window.navigator.userAgentData.mobile;}
+          catch (e) {is_mobile = mob_reg.test(navigator.userAgent);}
+          is_mobile = is_mobile ? 'mobile' : 'desktop';
+          form.elements.registered_via_mobile.value = is_mobile;
+        }
+        var country_field = form.elements.country_dropdown;
+        if (country_field && country)
+        {
+          if (country_field.value)
+          continue;
+          country_field.value = country;
+          country_field.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        if (!recent_utm)
+        continue;
+        if (recent_utm.referrer && 'referring_domain' in form.elements)
+        form.elements.referring_domain.value = recent_utm.referrer;
+        for (var key in E.utm_names)
+        {
+          var input_name = E.utm_names[key];
+          if (recent_utm[key] && input_name in form.elements)
+          form.elements[input_name].value = recent_utm[key];
+        }
+        if (recent_utm.last_event_order && 'last_event_order' in form.elements)
+        form.elements.last_event_order.value = recent_utm.last_event_order;
+      }
+      return recent_utm;
+    };
+
+    function get_current_lang() {
+      var acceptable = ['en', 'zh-hans', 'ja', 'ru', 'es', 'pt-br', 'de', 'fr'];
+      var lang = location.search.match(_wrapRegExp(/(?:\?|&)lang=([^&]+)/i, { lang: 1 }));
+      lang = lang && lang.groups && lang.groups.lang;
+      if (acceptable.includes(lang))
+      return lang;
+      switch (location.hostname) {
+
+        case 'luminati-china.biz':return 'zh-hans';
+        case 'www.bright.cn':return 'zh-hans';
+        case 'brightdata.jp':return 'ja';
+        case 'ru-brightdata.com':return 'ru';
+        case 'brightdata.es':return 'es';
+        case 'brightdata.com.br':return 'pt-br';
+        case 'brightdata.de':return 'de';
+        case 'brightdata.fr':return 'fr';
+      }
+      return 'en';
+    }
+
+    // XXX viktor: use build_form on lp.* pages directly, always set form_base
+    E.embed_signup_form = E.embed_lp_form = function (formId, form_base) {
+      form_base = form_base || 'https://brightdata.com';
+      E.build_form(formId, { base: form_base });
+    };
+
+    function filter_opt_hs_form(opt) {
+      switch (opt.formId) {
+
+        // Book a Demo Form
+        case '85d0ce44-a6ac-4e7c-ab7a-b746d9afacb8':
+        case 'bf6b2f71-defd-47e9-857d-d4fa8add9c1b':
+        // Book a Demo Form (zlxc)
+        case 'e6a0b3d6-9e56-48f3-9d41-d3be07795b00':
+          // zlxc test url /stub?request_demo=1
+          opt = form_opts_book_a_demo(opt);
+          break;
+        // Registration Form (zlxc)
+        case '388def60-eed7-4310-bdbc-07bffdea99cc':
+        // New Registration Form - TEST
+        case '089dd2e3-78ed-4ebe-af12-239cc8698661':
+        // Registration Form - approved
+        case '3b85fb81-0c6d-4480-acbe-929c19e52902':
+        // Registration Form - approved CN [中文（中国）]
+        case '51aba138-0d0e-4e99-9099-3ad26a5b3746':
+        // Registration Form - approved (RU)
+        case 'ed81e6c1-2449-45af-a4d8-6166692a3699':
+        // Registration Form - approved (JP)
+        case '4b751745-6077-4653-85a1-902f700f3b39':
+        // Registration Form - approved (PT)
+        case '3f18f4b0-9610-4398-881c-1cebf3bfe09a':
+        // Registration Form - approved (FR)
+        case '9161464a-1669-4fd8-a7e7-c06113e8b7d5':
+        // Registration Form - approved (ES)
+        case 'f7cb295d-1b07-44e0-98ce-788969c7fb3d':
+        // Registration Form - approved (DE)
+        case 'dec274a5-3fcc-4b60-a1f1-9f2a7216a91b':
+        // Registration Form - Proxy
+        case '8ca191d4-a77e-4352-a4c9-ae1f81932b24':
+        // Registration Form - Proxy (CN)
+        case '54ed4984-2f90-47ef-b2a2-be1052107a62':
+        // Registration Form - Proxy (DE)
+        case '94cd2549-c7c1-4be0-874a-081900093838':
+        // Registration Form - Proxy (RU)
+        case '01b49e6f-d1d8-48b2-9e1e-477683ee9672':
+        // Registration Form - Proxy (FR)
+        case '3f81d18f-4b8d-44cd-aaf5-3b4647461f86':
+        // Registration Form - Proxy (JP)
+        case '73af2815-27a2-4244-84ce-4639a281910c':
+        // Registration Form - Proxy (PT)
+        case '4762af13-af0a-489e-bbe6-bed76d9cc509':
+        // Registration Form - Proxy (ES)
+        case '250ea62d-5c0e-4f45-a302-6e849a81049d':
+        // Book a demo + Registration Form
+        case '37739294-78d8-43c9-a093-0cf48283e617':
+        // Registration Form - DCA
+        case '36e59326-fa16-4619-8a36-850e7ff73b74':
+        // Registration Form - approved - CN DCA
+        case '2ac602f1-3f5c-4be9-98d3-c37f807f3de9':
+        // Short Registration Form (cp page)
+        case 'c14ce8d7-a0b2-4e57-a4c8-0dbe7ea1d5aa':
+        // Short Registration Form (cp page) - CN
+        case '35ecfa16-4adb-4f61-8b27-507f2582dfc5':
+        // Signup with Google (backend)
+        case '42b70bbc-92cb-49a2-99f2-1f6b12f5b90a':
+        // Registration form - shortened with Google
+        case '1b5aae08-7cf9-4f9f-a7f8-5c84a3453574':
+        // Registration form - shortened with Google (RU)
+        case 'c3d2f9cd-110e-434f-9f32-d0225f80490e':
+        // Registration form - shortened with Google (ES)
+        case '78d6f626-300b-4fdb-aa0f-a28f5eb628a5':
+        // Registration form - shortened with Google (PT)
+        case 'f813be17-6441-4a7c-8237-3e3fc1134136':
+        // Registration form - shortened with Google (FR)
+        case 'd09d2aca-a8e3-44b1-a080-f4f784538adb':
+        // Registration form - shortened with Google (DE)
+        case 'a65ecb62-d51d-4415-b0ad-45fa2f349d1e':
+        // Registration form - shortened with Google (CN)
+        case '4bbdef5a-0430-4918-b2af-838ad0cb76e7':
+        // Registration form - shortened with Google (JP)
+        case 'a0914a30-ddaf-4e83-aff5-eb0f9253c4de':
+        // Datasets Registration form - shortened with Google
+        case 'edd7d6fe-7a30-4b4c-947d-7372008e98ec':
+        // Datasets Registration form - shortened with Google (FR)
+        case '4deeb1ef-122f-4ffd-b16a-f4036465964d':
+        // Datasets Registration form - shortened with Google (JP)
+        case '00a26419-6922-4b90-8a8e-a1e26ee5f2fc':
+        // Datasets Registration form - shortened with Google (RU)
+        case 'b1c1c873-9f18-4bba-b0c3-8eaf4fd04c21':
+        // Datasets Registration form - shortened with Google (PT)
+        case 'd35c0e62-9f55-4011-b66d-bcfcaedb9533':
+        // Datasets Registration form - shortened with Google (ES)
+        case '635713c2-536a-4831-879f-56e15ee84f87':
+        // Datasets Registration form - shortened with Google (DE)
+        case 'e2abdb12-f3e8-4910-b7fc-d9eaaf5fd07f':
+        // Registration Form (step 2) // EN
+        case '8e877e0a-690c-4998-b993-5f1f72189318':
+        // Registration form - shortened with Google (TEST - do not use)
+        case '59814700-95a7-4af8-8201-2bbd904b39f9':
+          opt = form_opts_signup(opt);
+          break;
+        // Contact Sales - Data collector
+        case '3350b575-63ee-4eae-b95b-bb860b0fb478':
+        // Web scraper API
+        case '9044706f-3fdf-4ebf-93a9-8ce34c1515ee': // EN
+        case '811634e2-6c75-4fac-8d4c-ef6c8e4c5344': // RU
+        case 'd8aa95a4-5554-4e94-b1b9-c600e98f4383': // JA
+        case '873b46cf-92db-44c9-a635-118839d719c8': // CN
+        // Contact Sales (CN) Data collector (zlxc)
+        case '2ab66b01-4e37-4a0b-8d30-116499c63690':
+          // zlxc test url /stub?contact_sales_data_collector=1
+          opt = form_opts_calendly(opt, { event_type: 'data_collector' });
+          break;
+        // Contact Sales (CN) Data collector
+        case 'cab016b0-2e27-45b9-8b04-54104a005bf8':
+          // zlxc test url /stub?contact_sales_data_collector=1
+          opt = form_opts_calendly(opt,
+          { event_type: 'data_collector', lang: 'cn' });
+          break;
+        // New Dataset sample request (pricing page)
+        case '4a9dce96-e7bd-4a27-b7ad-25860901db4d':
+        // New Dataset sample request (pricing page) (zlxc)
+        case '818009e6-8af3-4c5c-ac71-630bf3ac4a35':
+        // New Dataset sample request (product page)
+        case 'd97fec74-2b23-4fd8-89af-4b9b10e81d60':
+          // zlxc test url /stub?request_dataset=1
+          opt = form_opts_calendly(opt,
+          { event_type: 'data_collector', product_interests: 'Datasets' });
+          break;
+        // contact sales (zlxc)
+        case 'b6ce9a44-a500-450c-a626-1111c722fdd5':
+          // zlxc test url /stub?contact_sales=1
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'de' });
+          break;
+        // Contact new switchers (EN)
+        case 'c8e11f6a-52dc-44da-b254-03e5287b3d1e':
+        // Contact Sales (EN) - TEST
+        case '3c21401a-2bf8-4dfd-9ef6-f239c5c8a30d':
+        // Contact Sales (EN) - Request a demo
+        case '2e9d229b-447b-4f8c-8d8b-2b7e8e9e10a9':
+        // Contact Sales (EN) - Switchers LPs
+        case '224a8352-33cc-4797-a852-534df2b81689':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'en' });
+          break;
+        // Contact Sales (Spanish)
+        case '7392be7c-497b-49a1-b335-e2c72665ffae':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'es' });
+          break;
+        // Contact Sales (Portuguese)
+        case '3cb271af-84fd-41f0-8c8d-ee8e8d610213':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'pt' });
+          break;
+        // Contact Sales (CN)
+        case 'f5cb5675-0717-4014-b227-b1858634de47':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'cn' });
+          break;
+        // Contact Sales (Russian)
+        case 'fc5b4519-32d3-4e13-8e8c-234c004b09b9':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'ru' });
+          break;
+        // Contact Sales (Japanese)
+        case '98a38015-ab97-4151-9c8b-53b1b15c1ba1':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'ja' });
+          break;
+        // Contact Sales (FR)
+        case 'ab0477e0-8e53-4cf2-aa92-03dfa29ed6dc':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'fr' });
+          break;
+        // Contact Sales (DE)
+        case 'd527aade-5e2a-4c63-ac82-567b66265465':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'de' });
+          break;
+        // Web Data
+        case '2c13dc1d-2443-46b3-b9ec-3e429c1765de':
+          opt = form_opts_calendly(opt, { event_type: 'data_collector',
+            lang: 'en', product_interests: 'Web Data' });
+          break;
+        // New Dataset sample request (product page) - CN
+        case 'b3a84289-ea60-4cfe-8640-cd0a2810dc98':
+        // New Dataset sample request (pricing) - CN
+        case '42802e4d-acca-41aa-936b-7d08d1bcce63':
+          opt = form_opts_calendly(opt, { event_type: 'data_collector',
+            lang: 'cn' });
+          break;
+        // Web Data - CN
+        case '2554b2bf-6c64-4a9e-a60c-bfa94bbe7ad5':
+          opt = form_opts_calendly(opt, { event_type: 'data_collector',
+            lang: 'cn', product_interests: 'Web Data' });
+          break;
+        // Web Data - RU
+        case '808650a0-e598-49f1-bf40-4765ac1fa4ea':
+          opt = form_opts_calendly(opt, { event_type: 'data_collector',
+            lang: 'ru' });
+          break;
+        // Web Data - JP
+        case '00a65eec-e06c-41fa-ac3f-4adecc9d3b9d':
+          opt = form_opts_calendly(opt, { event_type: 'data_collector',
+            lang: 'jp' });
+          break;
+        // Data Collector - RU
+        case 'b4964844-a7a3-4e28-94a3-131af71c1908':
+        // New Dataset sample request (product page) - RU
+        case 'b87d9b0f-b509-4c8c-ad6c-d8ecabd0e9a8':
+        // New Dataset sample request (pricing page) - RU
+        case '7b9fa42e-5c87-4457-99b0-8c58420e9650':
+          opt = form_opts_calendly(opt, { event_type: 'data_collector',
+            lang: 'ru' });
+          break;
+        // New Dataset sample request (product page) - JP
+        case '5a9f6f28-0062-41e2-ab4c-ff6a0edb1ae1':
+        // New Dataset sample request (pricing page) - JP
+        case '6095f2f8-3cbc-4c08-b77e-f97d83a8816b':
+        // Data Collector - JP
+        case 'ddb994ba-576c-4086-b6af-81bf747b49e3':
+          opt = form_opts_calendly(opt, { event_type: 'data_collector',
+            lang: 'jp' });
+          break;
+        // Web Data - DE
+        case 'dca6cb63-4819-49d1-8b21-99b8c7213573':
+        // Datasets - DE
+        case 'adcf5a12-07b2-4789-8230-2b916e0020d7':
+        // Data Collector - DE
+        case '7377ad90-6d69-4196-8adc-438efe1c2e3c':
+        // New Dataset sample request (pricing page) - DE
+        case 'b8a4cc40-1808-4fe1-b06f-9ae81f8b39a5':
+        // Web scraper API Lang DE
+        case '018415d5-3942-4e04-8350-9201f280aa7b':
+          opt = form_opts_calendly(opt, { event_type: 'data_collector_de',
+            lang: 'de' });
+          break;
+        // New Dataset sample request (pricing page) - FR
+        case 'f3ad7b46-c59e-4539-b480-ec524356d49e':
+        // Data Collector - FR
+        case '3e563306-48db-4ee1-be54-ecd0ef6560bd':
+        // Datasets - FR
+        case '50eae694-d8bf-4821-b69a-bc7a136d82c7':
+        // Web Data - FR
+        case '359686de-e627-48f7-8f88-b7ee3f335d36':
+        // Web scraper API Lang FR
+        case '2c171314-ec30-47cb-a2cd-d0cdeb1e8e72':
+          opt = form_opts_calendly(opt, { event_type: 'data_collector_fr',
+            lang: 'fr' });
+          break;
+        // Web Data - ES
+        case '9676dad6-08dc-4328-bea4-b97b11bd41e1':
+        // Data Collector - ES
+        case '0092a70d-c28d-42e9-ade0-a36f4ad63df8':
+        // New Dataset sample request (product page) - ES
+        case 'aa3a794c-d68c-4c3b-979a-eefe51475ba1':
+        // New Dataset sample request (pricing page) - ES
+        case 'fbab3e81-3432-4910-8f9d-4b0c68f098a8':
+        // Web scraper API Lang ES
+        case '7adf5507-f993-4267-aa3e-0a9238e012f9':
+          opt = form_opts_calendly(opt, { event_type: 'data_collector_es',
+            lang: 'es' });
+          break;
+        // New Dataset sample request (pricing page) - PT
+        case '995f0d37-0ad4-42f4-b754-4c9f79b55835':
+        // New Dataset sample request (product page) - PT
+        case '0ba4aa6b-73c6-49e5-9fdb-1b8728218418':
+        // Data Collector - PT
+        case 'f53f9a16-9450-49c9-91b9-5f9678282d4a':
+        // Web Data - PT
+        case 'ed3f286e-6e60-42ba-b431-1b075249aa3f':
+        // Web scraper API Lang PT
+        case 'a59e00d2-00a4-4a53-8161-9cd7f8fd8df7':
+          opt = form_opts_calendly(opt, { event_type: 'data_collector_pt',
+            lang: 'pt' });
+          break;
+        // Bright Insights (Lang)
+        case '0afe0ec5-91c5-4203-9657-1111852949fd':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'en' });
+          break;
+        case 'be7c7357-e2e4-4187-b31b-88087b6335fd':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'ru' });
+          break;
+        case '8e304da4-cca7-4996-8aad-317c899c118b':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'fr' });
+          break;
+        case 'cf004305-c608-4491-bb0d-09a851b7d958':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'de' });
+          break;
+        case '1ef6714e-df6f-43d9-bb51-8c1c3fc1e2f7':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call', lang: 'ja' });
+          break;
+        case '689ea795-fedc-49d9-9d6a-53d0614a4b85':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call_pt', lang: 'pt' });
+          break;
+        case '5c5e9f72-b16d-4512-9a61-2f26c17573c4':
+          opt = form_opts_calendly(opt,
+          { event_type: 'schedule_call_es', lang: 'es' });
+          break;
+        // Event Meeting
+        case 'ff1a8ef4-0ea3-4b20-a167-88d42cd74f08':
+          opt = form_opts_calendly(opt, { event_type: 'schedule_call',
+            lang: 'en' });
+          break;
+      }
+      return opt;
+    }
+
+    function extend_callback(opt, event, callback) {
+      var old = opt[event];
+      opt[event] = function () {
+        var _args = arguments;
+        var promise;
+        if (old)
+        promise = old.apply(this, _args);
+        if (!promise || !promise.then)
+        return callback.apply(this, _args);
+        return promise.then(function () {
+          return callback.apply(this, _args);
+        });
+      };
+    }
+    E.t.extend_callback = extend_callback;
+
+    function show_company_domain_msg(form, values) {
+      var form_wrapper = form.closest('.sign_up__left');
+      var texts = {
+        title: {
+          en: 'Thank You!',
+          es: '¡Gracias!',
+          fr: 'Merci!',
+          jp: 'ありがとうございます！',
+          'pt-br': 'Obrigado!',
+          ru: 'Спасибо!',
+          'zh-hans': '感谢您！',
+          de: 'Vielen Dank!'
+        },
+        content: {
+          en: '<p>We will reach out via email shortly (usually ' +
+          'within the hour).</p><p>In the meantime, feel free to ' +
+          'sign up to start using the platform now - many of our ' +
+          'tools and datasets are ready for self-service!</p>',
+          es: '<p>En breve nos pondremos en contacto contigo por correo ' +
+          'electrónico (normalmente en menos de una hora).</p>' +
+          '<p>Mientras tanto, no dudes en registrarte para empezar ' +
+          'a usar la plataforma. ¡Muchas de nuestras herramientas ' +
+          'y conjuntos de datos están listos para el ' +
+          'autoservicio!</p>',
+          fr: '<p>Nous vous contacterons par e-mail dans les plus brefs ' +
+          'délais (généralement dans l\'heure qui suit).</p>' +
+          '<p>En attendant, n\'hésitez pas à vous inscrire pour ' +
+          'commencer à utiliser la plateforme dès maintenant - un ' +
+          'grand nombre de nos outils et l\'ensemble des données ' +
+          'sont prêts à être utilisés en libre-service !</p>',
+          jp: '<p>間もなくEメールにて連絡させていただきます（通常1時間以内）。</p>' +
+          '<p>それまで、登録を済ませてプラットフォームをご利用ください。' +
+          '多くのツール並びにデータセットがご利用いただけます！</p>',
+          'pt-br': '<p>Entraremos em contato por e-mail em breve ' +
+          '(geralmente dentro de uma hora).</p>' +
+          '<p>Enquanto isso, sinta-se à vontade para se inscrever ' +
+          'e começar a usar a plataforma agora — muitas de nossas ' +
+          'ferramentas e conjuntos de dados estão prontos para o ' +
+          'autoatendimento!</p>',
+          ru: '<p>Мы свяжемся с вами по электронной почте в ближайшее ' +
+          'время (обычно в течение часа).</p>' +
+          '<p>А пока не стесняйтесь зарегистрироваться, чтобы ' +
+          'начать использовать платформу прямо сейчас — многие из ' +
+          'наших инструментов и наборов данных готовы к ' +
+          'самообслуживанию!</p>',
+          'zh-hans': '<p>我们将很快通过电子邮件与您联系（通常在一小时内）。</p>' +
+          '<p>同时，请随时注册以便立即开始使用该平台——' +
+          '我们多项工具和数据集的自助服务已准备就绪！</p>',
+          de: '<p>Wir werden uns in Kürze per E-Mail bei Ihnen melden ' +
+          '(in der Regel innerhalb einer Stunde).</p>' +
+          '<p>In der Zwischenzeit steht Ihnen die Plattform zur ' +
+          'Nutzung offen – eine Vielzahl unserer Tools und ' +
+          'Datensätze steht zur selbstständigen Nutzung bereit!</p>'
+        },
+        btn: {
+          en: 'Sign up',
+          es: 'Regístrate',
+          fr: 'Inscription',
+          jp: '登録',
+          'pt-br': 'Inscreva-se',
+          ru: 'Зарегистрироваться',
+          'zh-hans': '注册',
+          de: 'Anmelden'
+        },
+        login: {
+          en: 'Already have an account? <a href="/cp/start">Log in' +
+          '</a>',
+          es: '¿Ya tienes una cuenta? <a href="/cp/start">Iniciar sesión' +
+          '</a>',
+          fr: 'Vous avez déjà un compte? <a href="/cp/start">Se ' +
+          'connecter</a>',
+          jp: 'すでにアカウントをお持ちの方<a href="/cp/start">ログイン</a>',
+          'pt-br': 'Já tem uma conta? <a href="/cp/start">Entrar</a>',
+          ru: 'У вас уже есть аккаунт? <a href="/cp/start">Войдите</a>',
+          'zh-hans': '已经有账号了吗？<a href="/cp/start">登录</a>',
+          de: 'Sie haben bereits ein Konto? <a href="/cp/start">' +
+          'Einloggen</a>'
+        }
+      };
+      var tpl = function tpl(title, content, btn, login) {
+        var btn_cls = 'btn btn--small br-8 btn--brand mx-auto ' +
+        'with_borders no_ripple';
+        return "<div class=\"ty_wrapper mx-auto d-flex flex-column\">\n            <h5 class=\"form_title text-center mb-2\">".concat(
+          title, "</h5>\n            <div class=\"text-center mb-5 body_m\">").concat(
+          content, "</div>\n            <a href=\"#popup-155639\" title=\"").concat(
+          btn, "\" class=\"").concat(btn_cls, "\"\n              onclick=\"brd_modals.init_modal('popup-155639', false,\n              false);\">").concat(
+
+          btn, "</a>\n            <div class=\"login pt-2 body_s text-center\">").concat(
+          login, "</div>\n            </div>");
+
+      };
+      setTimeout(function () {
+        var lang = get_current_lang();
+        var title = texts.title[lang] || texts.title.en;
+        var content = texts.content[lang] || texts.content.en;
+        var btn = texts.btn[lang] || texts.btn.en;
+        var login = texts.login[lang] || texts.login.en;
+        form_wrapper.innerHTML = tpl(title, content, btn, login);
+      }, 50);
+    }
+
+    function form_opts_calendly(opt, req_data_init) {
+      var script = 'https://assets.calendly.com/assets/external/widget.js';
+      var calendly_email,calendly_name,delay = 30;
+      function insert_calendly_widget(calendly_link) {
+        if (!calendly_link)
+        return;
+        var target = document.querySelectorAll('div.hs-form-' + opt.formId);
+        var open_new_popup = false;
+        if (!target.length)
+        return setTimeout(insert_calendly_widget, delay = delay * 3);
+        for (var i = 0; i < target.length; i++)
+        {
+          var parent_modal = target[i].closest('.elementor-popup-modal, ' +
+          '.jquery-modal, .contact_wrap');
+          if (!parent_modal)
+          {
+            // for ACF popup template element
+            parent_modal = document.querySelector('.micromodal.is-open ' +
+            '.brd_hs_form__wrapper .brd_hs_form');
+          }
+          if (!parent_modal)
+          {
+            open_popup_for_calendly();
+            parent_modal = document.querySelector('.micromodal.is-open ' +
+            '.brd_hs_form__wrapper .brd_hs_form');
+            open_new_popup = !!parent_modal;
+          }
+          if (parent_modal)
+          {
+            var elm = open_new_popup ? parent_modal : target[i];
+            elm.innerHTML = '<div class="calendly-inline-widget" ' +
+            'data-auto-load="false"></div>';
+            parent_modal.classList.add('brd-popup-calendly');
+          } else
+          if (typeof elementorProFrontend !== 'undefined')
+          {
+            elementorProFrontend.modules.popup.showPopup({ id: 56584 });
+            document.querySelector('#elementor-popup-modal-56584').
+            classList.add('brd-popup-calendly');
+          }
+        }
+        function open_popup_for_calendly() {
+          if (typeof MicroModal === 'undefined')
+          return;
+          if (typeof brd_popups_html === 'undefined')
+          return;
+          var modal_id = 'popup-129048';
+          if (!document.querySelectorAll('#' + modal_id).length)
+          {
+            if (!brd_popups_html[modal_id])
+            return;
+            document.body.insertAdjacentHTML('beforeend',
+            brd_popups_html[modal_id]);
+          }
+          MicroModal.show(modal_id);
+        }
+        var tag = document.createElement('script');
+        tag.src = script;
+        tag.addEventListener('load', function () {
+          Calendly.initInlineWidget({
+            url: calendly_link,
+            parentElement:
+            document.querySelector('.calendly-inline-widget'),
+            prefill: { email: calendly_email, name: calendly_name }
+          });
+        }, false);
+        document.head.appendChild(tag);
+      }
+      extend_callback(opt, 'onFormSubmitted', function (form, event) {
+        var values = event.submissionValues;
+        calendly_name = values.firstname + ' ' + values.lastname;
+        calendly_email = values.email;
+        var req_data = Object.assign({
+          email: values.email,
+          country: values.country_dropdown,
+          numemployees: values.numemployees,
+          vertical: values.mdoc_verticals__contact___new,
+          fill_owner: true,
+          location: document.location.href,
+          is_company_domain: values.is_company_domain == 'true'
+        }, req_data_init);
+        var has_comp_domain = req_data.is_company_domain != 'undefined';
+        req_hserr('calendly_biz', { req_data: req_data, values: values });
+        var form_elem = form[0] ? form[0] : form;
+        if (has_comp_domain && !req_data.is_company_domain && !is_selenium())
+        show_company_domain_msg(form_elem, req_data);else
+
+        {
+          req_post(E.ATTR_BASE + '/web_api/get_calendly_link', req_data, {
+            success: function success(res) {
+              insert_calendly_widget(res.link);
+            }
+          });
+        }
+      });
+      extend_callback(opt, 'onFormReady', function () {
+        var form = document.querySelector('#hsForm_' + opt.formId);
+        var test_id = '2e9d229b-447b-4f8c-8d8b-2b7e8e9e10a9';
+        var is_home_a = location.pathname.indexOf('home-a') > 0;
+        if (form.getAttribute('data-form-id') == test_id && is_home_a)
+        {
+          var clearout = window.clearout = window.clearout || [];
+          var opts = {
+            app_token: 'ee5a639a3ebc002669228280068e2004:53fadf6b7cfb7824' +
+            'd01e1bef048af5a64bd7f0f76485f7f1277cdf8bb2af8dcc',
+            mode: 'ajax',
+            api_url: 'https://api.clearout.io'
+          };
+          clearout.push(['initialize', opts, form]);
+          var t = document;
+          var e = t.createElement('script');
+          var a = t.getElementsByTagName('script')[0];
+          e.type = 'text/javascript';
+          e.async = !0;
+          e.src = 'https://clearout.io/wp-content/co-js-widget/clearout_js' +
+          '_widget.js';
+          a.parentNode.insertBefore(e, a);
+        }
+        handle_company_domain(form);
+      });
+      return opt;
+    }
+
+    function handle_company_domain(form) {
+      var compd_input = form.querySelector('input[name="is_company_domain"]');
+      var email = form.querySelector('input[type=email]');
+      var btn = form.querySelector('input[type=submit]');
+      if (!compd_input || !email)
+      return;
+      btn.disabled = true;
+      btn.classList.add('disabled');
+      email.addEventListener('blur', function (e) {
+        if (!email.value)
+        return;
+        req('GET', '/web_api/validate_company_email?email=' + email.value, null, {
+          retry: 2,
+          success: function success(res) {
+            btn.disabled = false;
+            btn.classList.remove('disabled');
+            compd_input.value = res.status === true ? 'true' : 'false';
+            compd_input.dispatchEvent(new Event('input', { bubbles: true }));
+            req_hserr('calendly_biz_email', res);
+          },
+          error: function error(err) {
+            btn.disabled = false;
+            btn.classList.remove('disabled');
+            compd_input.value = 'false';
+            compd_input.dispatchEvent(new Event('input', { bubbles: true }));
+            req_hserr('calendly_biz_email', err);
+          }
+        });
+      });
+    }
+
+    var recaptcha_signup;
+    function generate_recaptcha_signup_token() {
+      if (recaptcha_signup)
+      return recaptcha_signup;
+      var site_key;
+      recaptcha_signup = new Promise(function (resolve_conf) {
+        req('GET', '/users/recaptcha_conf', null, {
+          success: function success(data) {return resolve_conf(data || {});},
+          complete: function complete() {return resolve_conf({});}
+        });
+      }).then(function (conf) {
+        if (!conf || !conf.site_key || !conf.force_on_signup)
+        return null;
+        site_key = conf.site_key;
+        return new Promise(function (resolve_grecaptcha) {
+          if (window.grecaptcha)
+          return resolve_grecaptcha(window.grecaptcha);
+          window.recaptcha_onload_hs = function () {
+            resolve_grecaptcha(window.grecaptcha);
+          };
+          var script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.src = 'https://www.google.com/recaptcha/api.js?render=' +
+          site_key + '&onload=recaptcha_onload_hs';
+          script.async = true;
+          script.defer = true;
+          script.onerror = function () {return resolve_grecaptcha(null);};
+          var s = document.getElementsByTagName('script')[0];
+          s.parentNode.insertBefore(script, s);
+        });
+      }).then(function (grecaptcha) {
+        if (!grecaptcha)
+        return null;
+        return grecaptcha.execute(site_key, { action: 'submit' });
+      });
+      var timeout = setTimeout(function () {return req_debug('recaptcha_timeout=1');}, 5000);
+      recaptcha_signup.then(function () {
+        clearTimeout(timeout);
+      });
+      return recaptcha_signup;
+    }
+
+    function form_opts_signup(opt) {
+      var signup_base = opt.base || '';
+      delete opt.base;
+      var email;
+      extend_callback(opt, 'onFormSubmitted', function () {
+        if (!email)
+        return;
+        return ipqs_assign(email);
+      });
+      extend_callback(opt, 'onFormSubmit', function () {
+        push_agl();
+        var form = document.querySelector('#hsForm_' + opt.formId);
+        var email_el = form.querySelector('input[type=email]');
+        email_el = email_el ? email_el : form.querySelector('input[name=email]');
+        email = email_el.value;
+        if (is_dev())
+        return;
+        E.identify(email);
+      });
+      function get_signup_form(ext) {
+        var data = get_signup_data(ext);
+        var signup_form = document.createElement('form');
+        signup_form.setAttribute('method', 'POST');
+        signup_form.setAttribute('action', signup_base + '/cp/signup');
+        for (var it in data)
+        {
+          var hidden = document.createElement('input');
+          hidden.setAttribute('type', 'hidden');
+          hidden.setAttribute('name', it);
+          hidden.value = data[it];
+          signup_form.appendChild(hidden);
+        }
+        return signup_form;
+      }
+      if (!opt.react_signup)
+      {
+        var recaptcha = generate_recaptcha_signup_token();
+        var email_raw;
+        extend_callback(opt, 'onFormSubmit', function () {
+          var form = document.querySelector('#hsForm_' + opt.formId);
+          var modal_inner = form.closest('.modal__inner');
+          email_raw = form.querySelector('input[type=email]') ?
+          form.querySelector('input[type=email]').value :
+          form.querySelector('input[name=email]').value;
+          if (modal_inner && modal_inner.length > 0)
+          {var _modal_inner$querySel;
+            (_modal_inner$querySel = modal_inner.querySelectorAll('.hide_after_form_submit')) === null || _modal_inner$querySel === void 0 || _modal_inner$querySel.
+            forEach(function (el) {return el.style.display = 'none';});
+          }
+          var social_wrap = form.parentElement.
+          querySelectorAll('.social_btns_wrap');
+          if (social_wrap.length > 0)
+          social_wrap.forEach(function (elm) {return elm.style.display = 'none';});
+        });
+        extend_callback(opt, 'onFormSubmitted', function (form, event) {
+          if (window.suggested_redirect)
+          {
+            location.href = signup_base + window.suggested_redirect;
+            return;
+          }
+          var partner_code = event.submissionValues.partner_code;
+          var first_name = event.submissionValues.firstname || '';
+          var last_name = event.submissionValues.lastname || '';
+          localStorage.setItem('signup.first_name', first_name);
+          localStorage.setItem('signup.last_name', last_name);
+          recaptcha.then(function (token) {
+            var signup_form = get_signup_form({ email_raw: email_raw, partner_code: partner_code,
+              first_name: first_name, last_name: last_name, recaptcha: token });
+            document.body.appendChild(signup_form);
+            signup_form.submit();
+          });
+        });
+      }
+      return opt;
+    }
+
+    function form_opts_book_a_demo(opt) {
+      var redirect;
+      extend_callback(opt, 'onFormSubmit', function () {
+        var form = document.querySelector('#hsForm_' + opt.formId);
+        var country_field = form.querySelector('[name="country_dropdown"]');
+        var region_selected;
+        var redirections = {
+          'EMEA': 'http://lp.brightdata.com/schedule-demo-ty-emeaapac',
+          'APAC': 'http://lp.brightdata.com/schedule-demo-ty-emeaapac',
+          'AMER': 'http://lp.brightdata.com/schedule-demo-ty-emer',
+          'CN': 'http://lp.brightdata.com/schedule-demo-ty-cn',
+          'TW': 'http://lp.brightdata.com/schedule-demo-ty-cn',
+          'HK': 'http://lp.brightdata.com/schedule-demo-ty-cn' };
+        var country = country_field.value;
+        region_selected = brd_forms_regions[country];
+        if (redirections[region_selected] == undefined)
+        redirect = redirections.EMEA;else
+
+        redirect = redirections[region_selected];
+      });
+      extend_callback(opt, 'onFormSubmitted', function () {
+        window.location.href = redirect;
+      });
+      return opt;
+    }
+
+    E.identify = function (email) {
+      var id = get_falcon_id();
+      if (!id)
+      return;
+      req_post(E.ATTR_BASE + '/users/identify?rnd=' + rnd, { id: id, email: email },
+      { success: function success(data) {set_falcon_id(data.mkt_sid3);} });
+    };
+
+    E.build_form = function (form_id, opt) {
+      opt = opt || {};
+      opt.portalId = opt.portalId || '7697697';
+      opt.formId = form_id;
+      var submission;
+      extend_callback(opt, 'onBeforeFormSubmit', function (form, data) {
+        var payload = { form_id: form_id, data: {} };
+        for (var k in data)
+        payload.data[data[k].name] = data[k].value;
+        try {
+          var context = JSON.parse(payload.data.hs_context);
+          payload.page_title = context.pageTitle;
+          payload.page_url = context.pageUrl;
+        } catch (e) {}
+        delete payload.data.hs_context;
+        submission = new Promise(function (resolve) {
+          req_post(E.ATTR_BASE + '/users/hs_form',
+          payload, { complete: resolve });
+        });
+        return submission;
+      });
+      extend_callback(opt, 'onFormSubmitted', function () {
+        return submission;
+      });
+
+      extend_callback(opt, 'onFormSubmitted', function () {
+        var form_container = document.querySelector('.brd_hs_form_' + form_id);
+        if (!form_container)
+        return;
+        if (form_container && form_container.closest('.micromodal'))
+        return;
+        if (window.matchMedia('(min-width:768px)').matches)
+        return;
+        setTimeout(function () {return form_container.scrollIntoView({ behavior: 'instant' });},
+        50);
+      });
+      opt = filter_opt_hs_form(opt);
+      req_debug('form=' + form_id);
+      extend_callback(opt, 'onFormReady', function () {
+        req_debug('form_ready=' + form_id);
+        var form = document.getElementById('hsForm_' + form_id);
+        var focus_elem = form.querySelector('input, textarea, button, select');
+        if (focus_elem && focus_elem.closest('.micromodal'))
+        focus_elem.focus();
+        E.fill_form_utm();
+        var tel_country_field = form.querySelector('.hs-fieldtype-intl-phone ' +
+        'select');
+        var tel_country = tel_country_field ? tel_country_field.value : '';
+        if (is_dev())
+        return;
+        queue_req_get(function () {
+          return E.ATTR_BASE + '/users/get_recent_utm?id=' + get_falcon_id() +
+          '&rnd=' + rnd + '&country=' + tel_country;
+        }, { timeout: 5000, retry: 3,
+          success: function success(recent_utm) {
+            set_falcon_id(recent_utm.mkt_sid3);
+            E.fill_form_utm(recent_utm);
+          }
+        });
+      });
+
+      delete opt.react_signup;
+      hbspt.forms.create(opt);
+    };
+
+    if ((typeof window === "undefined" ? "undefined" : _typeof(window)) == 'object' && !window.lum_hs)
+    {
+      window.lum_hs = E;
+      if (window.lum_hs_queue)
+      {
+        for (var i in window.lum_hs_queue)
+        window.lum_hs_queue[i]();
+      }
+      window.lum_hs_queue = { push: function push(callback) {callback();} };
+    }
+
+    function add_baidu_pixel() {
+      var is_baidu = window.location.href.indexOf('www.bright.cn/lp') >= 0 ||
+      window.location.hostname == 'luminati-china.biz';
+      if (!is_baidu)
+      return;
+      window._agl = window._agl || [];
+      window._agl.push(['production', '_f7L2XwGXjyszb4d1e2oxPybgD']);
+      var agl = document.createElement('script');
+      agl.type = 'text/javascript';
+      agl.async = true;
+      agl.src = 'https://fxgate.baidu.com/angelia/fcagl.js?production=_f7L2XwGXjyszb4d1e2oxPybgD';
+      agl.id = 'brd_cn_script_baidu';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(agl, s);
+    }
+
+    function push_agl() {
+      if (window._agl && typeof window._agl.push == 'function')
+      window._agl.push(['track', ['success', { t: 3 }]]);
+    }
+
+    if (typeof define == 'function')
+    define('hubspot_lp', [], function () {return E;});
+
+    function ipqs_assign(post_email) {
+      return new Promise(function (resolve) {
+        (function (d, script) {
+          setTimeout(resolve, 3000);
+          script = d.createElement('script');
+          script.type = 'text/javascript';
+          script.async = true;
+          script.onerror = resolve;
+          window.IPQ = {
+            Callback: function Callback() {
+              window.Startup.AfterResult(resolve);
+              window.Startup.Store('userID', post_email);
+              window.Startup.Init();
+            }
+          };
+          script.src = 'https://www.ipqualityscore.com/api/brightdata.com/' +
+          'ma35VEKuOqjFPtnYqDYRohyyT66ToQ0gM5OXAdGy6u2qwcb8aY7rE8pGkRaC' +
+          'HciIG1vCO9cSLkwzA5dKm4Fy6OLhD9DH7k8kc0ZBmR8KSmR3ZZzQzLnljKjA' +
+          'ZeyQCwdvrgsP4arsnTcqSoFlQseA4StIMIWOTJe0ponsmwVz8ykZO0eGdmCk' +
+          'tkDdelJYovDRJMJyaaZ0qRhL3DfGMq1iTconQKc71fgp1a6mybEEdlF8doN5' +
+          'ZlAB777zW4NXKMJV/learn.js';
+          script.crossorigin = 'anonymous';
+          d.getElementsByTagName('head')[0].appendChild(script);
+        })(document);
+      });
+    }
+
+  })();})();
+//# sourceMappingURL=hubspot_lp.js.map

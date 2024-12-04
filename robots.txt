@@ -1,0 +1,15 @@
+User-agent: *
+Disallow: /lum/
+Disallow: /www/*.html
+Disallow: /use-cases/fintech
+Disallow: /products/datasets2/
+Disallow: /events/*
+Disallow: /wp-stage/*
+Disallow: /www/*
+Disallow: /svc/*
+Crawl-delay: 5
+
+Host: brightdata.com
+
+Sitemap: https://brightdata.com/sitemap_index.xml
+
